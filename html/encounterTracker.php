@@ -48,43 +48,48 @@
   </head>
   <body>
     <main>
-      <h1>Encounter</h1>
-      <table>
-        <caption></caption>
-        <thead>
-          <tr>
-            <th>Initiative</th>
-            <th>Name</th>
-            <th>HP</th>
-            <th>AC</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php
-            $servername = "localhost";
-            $username = "lees";
-            $password = "lees";
-            $dbname = "dnd";
-            // creëer connectie
-            $conn = mysqli_connect($servername, $username, $password, $dbname);
-            // controleer connectie
-            if (!$conn) {
-              die("Connection failed: " . mysqli_connect_error());
-            }
-            $sql = "SELECT * FROM adventurers";
-            $result = mysqli_query($conn, $sql);
-            if (mysqli_num_rows($result) > 0) {
-              // data van elke rij tonen
-              while($row = mysqli_fetch_assoc($result)) {
-              echo "<tr><td>" . $row["id"]. "</td><td>" . $row["name"] . "</br>" . $row["class"] . " " . $row["level"] . "</td><td>" . $row["hp_max"]. "</td><td>" . $row["ac"]. "</td><td> 0 </td></tr>";
+      <div>
+        <h1>Encounter</h1>
+        <table>
+          <caption></caption>
+          <thead>
+            <tr>
+              <th>Initiative</th>
+              <th>Name</th>
+              <th>HP</th>
+              <th>AC</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+              $servername = "localhost";
+              $username = "lees";
+              $password = "lees";
+              $dbname = "dnd";
+              // creëer connectie
+              $conn = mysqli_connect($servername, $username, $password, $dbname);
+              // controleer connectie
+              if (!$conn) {
+                die("Connection failed: " . mysqli_connect_error());
               }
-            }
-            else echo "0 results";
-            mysqli_close($conn);
-          ?>
-        </tbody>
-      </table>
+              $sql = "SELECT * FROM adventurers";
+              $result = mysqli_query($conn, $sql);
+              if (mysqli_num_rows($result) > 0) {
+                // data van elke rij tonen
+                while($row = mysqli_fetch_assoc($result)) {
+                echo "<tr><td>" . $row["id"]. "</td><td>" . $row["name"] . "</br>" . $row["class"] . " " . $row["level"] . "</td><td>" . $row["hp_max"]. "</td><td>" . $row["ac"]. "</td><td> 0 </td></tr>";
+                }
+              }
+              else echo "0 results";
+              mysqli_close($conn);
+            ?>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        
+      </div>
     </main>
   </body>
 </html>
