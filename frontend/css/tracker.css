@@ -1,0 +1,29 @@
+.initiative-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.initiative-table th,
+.initiative-table td {
+  padding: 8px;
+  border-bottom: 1px solid #444;
+}
+
+.current-turn {
+  background: linear-gradient(90deg, #1f2a44, #2e3c5c);
+  outline: 2px solid #c9a227;
+}
+
+.hp-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: #fff;
+  display: inline-block;
+}
+
+.hp-healthy  { background: #2e7d32; }
+.hp-injured  { background: #f9a825; }
+.hp-bloodied { background: #ef6c00; }
+.hp-critical { background: #c62828; }
+.hp-0        { background: #424242; }

@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS encounters (
     name VARCHAR(255) NOT NULL,
     location VARCHAR(255),
     date DATE,
-    status VARCHAR(50)
+    status VARCHAR(50),
+    current_turn_index INT DEFAULT 0,
+    round INT DEFAULT 1
 ) ENGINE=InnoDB;
 
 -- ================= CREATURES =================
