@@ -8,6 +8,7 @@ DB_HOST = os.getenv("MYSQL_HOST", "localhost")
 DB_USER = os.getenv("MYSQL_USER", "lees")
 DB_PASS = os.getenv("MYSQL_PASS", "lees")
 DB_NAME = os.getenv("MYSQL_DB", "dnd")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ===== CONNECT WITHOUT DB (to create it) =====
 conn = mysql.connector.connect(
@@ -23,6 +24,7 @@ cursor.execute(f"USE {DB_NAME}")
 
 # Load SQL from file
 for sql_file in ["schema.sql", "dummy.sql"]:
+    sql_file = os.path.join(BASE_DIR, sql_file)
     with open(sql_file, "r") as f:
         sql = f.read()
         for statement in sql.split(";"):
