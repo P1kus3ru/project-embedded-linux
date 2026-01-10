@@ -1,6 +1,9 @@
 <?php
 require "db.php";
 
+header('Content-Type: application/json');
+ini_set('display_errors', 0);
+
 $encounter_id = $_POST['encounter_id'] ?? null;
 $combatant_count = $_POST['combatant_count'] ?? null;
 
@@ -52,7 +55,16 @@ $update = $pdo->prepare("
     SET current_turn_index = ?, round = ?
     WHERE id = ?
 ");
-$update->execute([$currentTurn, $round, $encounter_id]);
+
+try {
+    $update->execute([$currentTurn, $round, $encounter_id]);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Database update failed'
+    ]);
+    exit;
+}
 
 echo json_encode([
     'currentTurnIndex' => $currentTurn,

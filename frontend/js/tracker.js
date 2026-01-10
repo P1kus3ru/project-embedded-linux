@@ -1,20 +1,82 @@
+let encounterId = null;
 let combatants = [];
 let currentTurn = 0;
 let round = 1;
-let encounterId = null;
 
-function loadEncounter() {
-    encounterId = document.getElementById("encounterId").value;
+/* -----------------------------
+   URL helpers
+----------------------------- */
+function getEncounterIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("encounterId");
+}
+
+function setEncounterIdInUrl(id) {
+    const params = new URLSearchParams(window.location.search);
+
+    if (id) {
+        params.set("encounterId", id);
+    } else {
+        params.delete("encounterId");
+    }
+
+    const newUrl =
+        params.toString().length > 0
+            ? `${window.location.pathname}?${params.toString()}`
+            : window.location.pathname;
+
+    history.replaceState({}, "", newUrl);
+}
+
+/* -----------------------------
+   Load encounter
+----------------------------- */
+function loadEncounter(idFromCall = null) {
+    const input = document.getElementById("encounterId");
+
+    encounterId = idFromCall !== null
+        ? idFromCall
+        : input.value.trim();
+
+    if (!encounterId) {
+        console.warn("No encounter ID");
+        return;
+    }
+
+    // Always update URL
+    setEncounterIdInUrl(encounterId);
 
     fetch(`api/fetch_encounter.php?id=${encounterId}`)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Encounter not found");
+            return res.json();
+        })
         .then(data => {
             combatants = data.combatants;
             currentTurn = data.currentTurnIndex;
             round = data.round;
             renderTable();
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Failed to load encounter");
         });
 }
+
+/* -----------------------------
+   Init
+----------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+    document
+        .getElementById("loadBtn")
+        .addEventListener("click", () => loadEncounter());
+
+    const idFromUrl = getEncounterIdFromUrl();
+    if (idFromUrl) {
+        document.getElementById("encounterId").value = idFromUrl;
+        loadEncounter(idFromUrl);
+    }
+});
 
 function renderTable() {
     const tbody = document.querySelector("#combatTable tbody");

@@ -12,7 +12,7 @@
 
     <div class="controls">
         <input type="number" id="encounterId" placeholder="Encounter ID">
-        <button onclick="loadEncounter()">Load Encounter</button>
+        <button id="loadBtn">Load Encounter</button>
     </div>
 
     <table id="combatTable" class="Initiative-table">
@@ -34,6 +34,6 @@
         <button onclick="nextTurn()">Next Turn</button>
     </div>
 
-    <script src="js/tracker.js"></script>
+    <script src="js/tracker.js?v=1"></script>
   </body>
 </html>
