@@ -1,15 +1,23 @@
 <?php
 require "db.php";
 
+ini_set('log_errors', 1);
+ini_set('error_log', '/var/log/php_errors.log');
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
 ini_set('display_errors', 0);
 
 $encounter_id = $_POST['encounter_id'] ?? null;
 $combatant_count = $_POST['combatant_count'] ?? null;
 
-if (!$encounter_id || !$combatant_count) {
+if ($encounter_id === null || $combatant_count === null) {
     http_response_code(400);
-    exit("Missing parameters");
+    echo json_encode([
+        'error' => 'Missing parameters',
+        'received' => $_POST
+    ]);
+    exit;
 }
 
 /*
@@ -27,7 +35,11 @@ $encounter = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$encounter) {
     http_response_code(404);
-    exit("Encounter not found");
+    echo json_encode([
+        'error' => 'Encounter not found',
+        'received' => $_POST
+    ]);
+    exit;
 }
 
 $currentTurn = (int)$encounter['current_turn_index'];

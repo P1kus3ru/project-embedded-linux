@@ -130,10 +130,28 @@ function nextTurn() {
             combatant_count: combatants.length
         })
     })
-    .then(res => res.json())
+    .then(async res => {
+        const text = await res.text();
+
+        if (!res.ok) {
+            console.error("Server error:", text);
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error("Invalid JSON returned:", text);
+            throw e;
+        }
+    })
     .then(data => {
         currentTurn = data.currentTurnIndex;
         round = data.round;
         renderTable();
+    })
+    .catch(err => {
+        console.error("nextTurn failed:", err);
+        alert("Failed to advance turn. Check console.");
     });
 }
