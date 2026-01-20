@@ -34,6 +34,6 @@
         <button onclick="nextTurn()">Next Turn</button>
     </div>
 
-    <script src="js/tracker.js?v=1"></script>
+    <script src="js/tracker.js"></script>
   </body>
 </html>

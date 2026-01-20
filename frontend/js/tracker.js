@@ -46,7 +46,7 @@ function loadEncounter(idFromCall = null) {
     // Always update URL
     setEncounterIdInUrl(encounterId);
 
-    fetch(`api/fetch_encounter.php?id=${encounterId}`)
+    fetch(`api/fetch_encounter?id=${encounterId}`)
         .then(res => {
             if (!res.ok) throw new Error("Encounter not found");
             return res.json();
@@ -92,22 +92,22 @@ function renderTable() {
                 ? `${c.hp} / ${c.max_hp}`
                 : monsterHealthDescription(c);
 
-        const conditions =
-            c.conditions.length
-                ? c.conditions.map(cond => `${cond.name} (${cond.duration})`).join(", ")
-                : "";
+        const conditionsText = (c.conditions ?? [])
+            .map(cond => `${cond.name} (${cond.duration})`)
+            .join(", ");
 
         tr.innerHTML = `
             <td>${index === currentTurn ? "▶" : ""}</td>
             <td>${c.name}<br/>${c.class ?? "-"} ${c.level ?? "-"}</td>
             <td>${c.ac}</td>
             <td>${hpDisplay}</td>
-            <td>${conditions}</td>
+            <td>${conditionsText || "-"}</td>
         `;
 
         tbody.appendChild(tr);
     });
 }
+
 
 function monsterHealthDescription(c) {
     if (!c.hp || !c.max_hp) return "Unknown";
@@ -120,7 +120,7 @@ function monsterHealthDescription(c) {
 }
 
 function nextTurn() {
-    fetch("api/advance_turn.php", {
+    fetch("api/advance_turn", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
