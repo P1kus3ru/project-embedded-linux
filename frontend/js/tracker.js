@@ -46,21 +46,76 @@ function loadEncounter(idFromCall = null) {
     // Always update URL
     setEncounterIdInUrl(encounterId);
 
-    fetch(`api/fetch_encounter?id=${encounterId}`)
-        .then(res => {
-            if (!res.ok) throw new Error("Encounter not found");
-            return res.json();
+    // fetch(`api/fetch_encounter?id=${encounterId}`)
+    //     .then(res => {
+    //         if (!res.ok) throw new Error("Encounter not found");
+    //         return res.json();
+    //     })
+    //     .then(data => {
+    //         combatants = data.combatants;
+    //         currentTurn = data.currentTurnIndex;
+    //         round = data.round;
+    //         renderTable();
+    //     })
+    //     .catch(err => {
+    //         console.error(err);
+    //         alert("Failed to load encounter");
+    //     });
+
+    setInterval(() => {
+        fetch(`api/fetch_encounter?id=${encounterId}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Encounter not found");
+                return res.json();
+            })
+            .then(data => {
+                combatants = data.combatants;
+                currentTurn = data.currentTurnIndex;
+                round = data.round;
+                renderTable();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Failed to load encounter");
+            });
+    }, 1000);
+}
+
+function nextTurn() {
+    fetch("api/advance_turn", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            encounter_id: encounterId,
+            combatant_count: combatants.length
         })
-        .then(data => {
-            combatants = data.combatants;
-            currentTurn = data.currentTurnIndex;
-            round = data.round;
-            renderTable();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Failed to load encounter");
-        });
+    })
+    .then(async res => {
+        const text = await res.text();
+
+        if (!res.ok) {
+            console.error("Server error:", text);
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error("Invalid JSON returned:", text);
+            throw e;
+        }
+    })
+    .then(data => {
+        currentTurn = data.currentTurnIndex;
+        round = data.round;
+        renderTable();
+    })
+    .catch(err => {
+        console.error("nextTurn failed:", err);
+        alert("Failed to advance turn. Check console.");
+    });
 }
 
 /* -----------------------------
@@ -117,41 +172,4 @@ function monsterHealthDescription(c) {
     if (pct > 50) return "Injured";
     if (pct > 20) return "Bloodied";
     return "Near Death";
-}
-
-function nextTurn() {
-    fetch("api/advance_turn", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: new URLSearchParams({
-            encounter_id: encounterId,
-            combatant_count: combatants.length
-        })
-    })
-    .then(async res => {
-        const text = await res.text();
-
-        if (!res.ok) {
-            console.error("Server error:", text);
-            throw new Error(`HTTP ${res.status}`);
-        }
-
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            console.error("Invalid JSON returned:", text);
-            throw e;
-        }
-    })
-    .then(data => {
-        currentTurn = data.currentTurnIndex;
-        round = data.round;
-        renderTable();
-    })
-    .catch(err => {
-        console.error("nextTurn failed:", err);
-        alert("Failed to advance turn. Check console.");
-    });
 }

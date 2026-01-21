@@ -5,6 +5,27 @@ from mqtt_client import publish_active
 
 router = APIRouter()
 
+def monster_health_description(c):
+    try:
+        current_hp = int(c["current_hp"])
+        hp_max = int(c["hp_max"])
+    except (TypeError, ValueError):
+        return "Unknown"
+
+    if hp_max <= 0:
+        return "Unknown"
+
+    pct = (current_hp / hp_max) * 100
+
+    if pct > 80:
+        return "Healthy"
+    if pct > 50:
+        return "Injured"
+    if pct > 20:
+        return "Bloodied"
+    return "Near Death"
+
+
 @router.post("/api/advance_turn")
 def advance_turn(
     encounter_id: int = Form(...),
@@ -40,14 +61,28 @@ def advance_turn(
 
     # Fetch active combatant (for MQTT)
     cur.execute("""
-        SELECT name, current_hp
+        SELECT name, current_hp, hp_max, type
         FROM (
-            SELECT ea.current_hp, a.name, ea.initiative_roll
+            -- PCs
+            SELECT 
+                a.name AS name,
+                ea.current_hp AS current_hp,
+                NULL AS hp_max,
+                'pc' AS type,
+                ea.initiative_roll
             FROM encounter_adventurers ea
             JOIN adventurers a ON a.id = ea.adventurer_id
             WHERE ea.encounter_id = %s
+
             UNION ALL
-            SELECT ec.current_hp, COALESCE(ec.instance_name, c.name), ec.initiative_roll
+
+            -- Monsters
+            SELECT 
+                COALESCE(ec.instance_name, c.name) AS name,
+                ec.current_hp AS current_hp,
+                c.hp_max AS hp_max,
+                'monster' AS type,
+                ec.initiative_roll
             FROM encounter_creatures ec
             JOIN creatures c ON c.id = ec.creature_id
             WHERE ec.encounter_id = %s
@@ -58,9 +93,19 @@ def advance_turn(
 
     active = cur.fetchone()
     if active:
-        publish_active(active["name"], active["current_hp"])
+        if active["type"] == "monster":
+            hp_value = monster_health_description(active)
+        else:
+            hp_value = active["current_hp"]
+
+        publish_active(active["name"], hp_value)
+
 
     return {
         "currentTurnIndex": current_turn,
-        "round": round_num
+        "round": round_num,
+        "active_player_name": active["name"],
+        "active_player_hp": active["current_hp"],
+        "encounter_id": encounter_id,
+        "combatant_count": combatant_count
     }

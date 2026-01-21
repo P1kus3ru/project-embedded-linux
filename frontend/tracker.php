@@ -30,9 +30,9 @@
         </tbody>
     </table>
 
-    <div class="turn-controls">
+    <!-- <div class="turn-controls">
         <button onclick="nextTurn()">Next Turn</button>
-    </div>
+    </div> -->
 
     <script src="js/tracker.js"></script>
   </body>
